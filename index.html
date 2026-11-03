@@ -1,190 +1,416 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Review Card</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Digital Smart Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at top, #1e1b4b 0%, #090d16 65%, #05070b 100%);
+      min-height: 100vh;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .glass {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .tap-btn {
+      transition: transform 0.15s ease;
+    }
+    .tap-btn:active {
+      transform: scale(0.97);
+    }
+  </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4 font-sans">
+<body class="text-white flex items-center justify-center p-4">
 
-  <div class="w-full max-w-md bg-slate-800 border border-slate-700 rounded-3xl p-6 shadow-2xl text-center">
-    
-    <!-- Loading / Redirecting State -->
-    <div id="loading-box" class="py-10 space-y-4">
-      <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
-      <h2 id="status-title" class="text-xl font-bold text-white">Google Review पर ले जा रहे हैं...</h2>
-      <p id="status-desc" class="text-sm text-slate-400">कृपया एक सेकंड प्रतीक्षा करें</p>
+  <div class="w-full max-w-md glass rounded-[2rem] p-6 shadow-2xl relative overflow-hidden">
+
+    <div id="loading-view" class="py-16 text-center space-y-4">
+      <div class="w-12 h-12 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin mx-auto"></div>
+      <p id="loading-text" class="text-sm font-semibold text-slate-300">Loading...</p>
     </div>
 
-    <!-- Admin / Field Setup Form -->
-    <div id="setup-box" class="hidden text-left space-y-4">
-      <div class="text-center pb-2 border-b border-slate-700">
-        <div class="w-12 h-12 bg-indigo-600/20 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl font-bold">
-          <i class="fa-solid fa-bolt"></i>
+    <div id="customer-view" class="hidden space-y-5">
+      <div class="text-center space-y-2 pt-1">
+        <div onclick="secretTap()" class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 border-2 border-white/15 cursor-default">
+          <i class="fa-solid fa-user text-3xl text-white"></i>
         </div>
-        <h2 class="text-xl font-bold text-white">स्मार्ट कार्ड सेटअप</h2>
-        <p class="text-xs text-indigo-400 mt-1 font-mono">कार्ड ID: <span id="display-card-id" class="font-bold"></span></p>
+        <h1 id="hub-name" class="text-2xl font-extrabold text-white tracking-tight pt-1"></h1>
+        <p id="hub-tagline" class="hidden text-xs font-medium text-slate-400 bg-slate-800/80 inline-block px-3.5 py-1 rounded-full border border-slate-700"></p>
       </div>
 
-      <div id="error-msg" class="hidden p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-300 text-xs text-center font-medium"></div>
-      <div id="success-msg" class="hidden p-3 bg-emerald-500/20 border border-emerald-500/50 rounded-xl text-emerald-300 text-xs text-center font-medium"></div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-400 mb-1">मास्टर PIN (केवल आपके लिए)</label>
-        <input type="password" id="input-pin" maxlength="6" placeholder="अपना PIN दर्ज करें" 
-               class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+      <div id="btn-google-wrap" class="hidden pt-1">
+        <button onclick="openApp('google')" class="w-full tap-btn bg-gradient-to-b from-amber-500/20 to-slate-900 border-2 border-amber-400/70 rounded-2xl p-4 text-center shadow-lg shadow-amber-500/10">
+          <div class="flex justify-center gap-1 text-amber-400 text-base mb-1">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          </div>
+          <div class="flex items-center justify-center gap-2">
+            <i class="fa-brands fa-google text-amber-400 text-lg"></i>
+            <span class="text-base font-extrabold text-white">Review Us on Google</span>
+          </div>
+          <p class="text-[11px] text-amber-200/80 mt-0.5">Tap to rate your experience</p>
+        </button>
       </div>
 
-      <div>
-        <label class="block text-xs font-semibold text-slate-400 mb-1">दुकान / प्रतिष्ठान का नाम</label>
-        <input type="text" id="input-name" placeholder="उदा. माँ भवानी ड्रेसेस" 
-               class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
-      </div>
+      <div class="space-y-3">
+        <button id="btn-whatsapp" onclick="openApp('whatsapp')" class="hidden w-full tap-btn flex items-center justify-between p-3.5 rounded-2xl bg-slate-800/90 border border-emerald-500/30">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-600 to-green-500 flex items-center justify-center text-white text-2xl">
+              <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            <div class="text-left">
+              <h3 class="text-sm font-bold text-white">WhatsApp</h3>
+              <p class="text-[11px] text-slate-400">Chat with us directly</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-emerald-400 text-xs mr-2"></i>
+        </button>
 
-      <div>
-        <label class="block text-xs font-semibold text-slate-400 mb-1">Google Review लिंक</label>
-        <input type="url" id="input-url" placeholder="https://g.page/r/..." 
-               class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500 text-sm">
-      </div>
+        <button id="btn-instagram" onclick="openApp('instagram')" class="hidden w-full tap-btn flex items-center justify-between p-3.5 rounded-2xl bg-slate-800/90 border border-pink-500/30">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 via-pink-600 to-purple-600 flex items-center justify-center text-white text-2xl">
+              <i class="fa-brands fa-instagram"></i>
+            </div>
+            <div class="text-left">
+              <h3 class="text-sm font-bold text-white">Instagram</h3>
+              <p class="text-[11px] text-slate-400">Follow our profile</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-pink-400 text-xs mr-2"></i>
+        </button>
 
-      <button id="btn-save" onclick="saveCardData()" class="w-full py-3.5 mt-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 font-bold text-white shadow-lg shadow-indigo-600/30 transition duration-200">
-        कार्ड एक्टिवेट / सेव करें
-      </button>
+        <button id="btn-youtube" onclick="openApp('youtube')" class="hidden w-full tap-btn flex items-center justify-between p-3.5 rounded-2xl bg-slate-800/90 border border-red-500/30">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-red-600 to-rose-500 flex items-center justify-center text-white text-xl">
+              <i class="fa-brands fa-youtube"></i>
+            </div>
+            <div class="text-left">
+              <h3 class="text-sm font-bold text-white">YouTube</h3>
+              <p class="text-[11px] text-slate-400">Watch & Subscribe</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-red-400 text-xs mr-2"></i>
+        </button>
+
+        <button id="btn-facebook" onclick="openApp('facebook')" class="hidden w-full tap-btn flex items-center justify-between p-3.5 rounded-2xl bg-slate-800/90 border border-blue-500/30">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-sky-500 flex items-center justify-center text-white text-xl">
+              <i class="fa-brands fa-facebook-f"></i>
+            </div>
+            <div class="text-left">
+              <h3 class="text-sm font-bold text-white">Facebook</h3>
+              <p class="text-[11px] text-slate-400">Like & Follow our page</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-blue-400 text-xs mr-2"></i>
+        </button>
+      </div>
     </div>
 
-    <!-- Footer -->
-    <div class="mt-6 pt-4 border-t border-slate-700/50 flex justify-between items-center text-xs text-slate-500">
-      <span>Smart NFC System</span>
-      <button onclick="toggleAdminMode()" class="text-slate-500 hover:text-indigo-400 transition">⚙️ एडमिन</button>
+    <div id="setup-view" class="hidden space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">Card Setup</h2>
+            <p id="admin-card-id" class="text-xs text-indigo-400 font-mono"></p>
+          </div>
+        </div>
+        <button id="btn-close-setup" onclick="closeSetup()" class="hidden text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded-lg bg-slate-800">Close</button>
+      </div>
+
+      <div id="alert-box" class="hidden p-3 rounded-xl text-xs font-semibold text-center"></div>
+
+      <div class="bg-slate-900 p-3 rounded-2xl border border-indigo-500/30">
+        <label class="block text-[11px] font-bold text-indigo-300 uppercase mb-1">Master Password</label>
+        <div class="relative">
+          <input type="password" id="form-pin" placeholder="Enter Password" class="w-full pl-3 pr-9 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500 font-mono">
+          <button type="button" onclick="togglePin()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
+            <i id="eye-icon" class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-2.5 max-h-[52vh] overflow-y-auto pr-1">
+        <input type="text" id="form-name" placeholder="Business / Shop Name *" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500">
+        <input type="text" id="form-tagline" placeholder="Category or City (Optional)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500">
+        <input type="url" id="form-google" placeholder="Google Review Link" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-amber-500/40 text-white text-sm focus:outline-none focus:border-amber-400">
+        <input type="tel" id="form-whatsapp" placeholder="WhatsApp Number (10 digits)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
+        <input type="text" id="form-instagram" placeholder="Instagram Link or @username" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-pink-500">
+        <input type="text" id="form-youtube" placeholder="YouTube Channel Link" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-red-500">
+        <input type="url" id="form-facebook" placeholder="Facebook Page Link" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-blue-500">
+      </div>
+
+      <div class="pt-2 space-y-2">
+        <button id="btn-save" onclick="saveData()" class="w-full tap-btn py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white text-sm">Save & Activate</button>
+        <button id="btn-reset" onclick="resetData()" class="hidden w-full py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold">Reset Card</button>
+      </div>
     </div>
 
   </div>
 
   <script>
-    // 1. आपका मास्टर PIN (इसे आप यहाँ बदल सकते हैं)
-    const MASTER_PIN = "1234"; 
-
-    // 2. आपका Firebase Realtime Database URL
-    const FIREBASE_BASE_URL = "https://gen-lang-client-0204238981-default-rtdb.firebaseio.com";
+    const MASTER_PIN = "QSFL3201528";
+    const DB_URL = "https://gen-lang-client-0204238981-default-rtdb.firebaseio.com";
 
     const params = new URLSearchParams(window.location.search);
     const cardId = params.get('id');
-    const forceAdmin = params.get('admin') === '1';
 
-    const loadingBox = document.getElementById('loading-box');
-    const setupBox = document.getElementById('setup-box');
-    const statusTitle = document.getElementById('status-title');
-    const statusDesc = document.getElementById('status-desc');
-    const displayCardId = document.getElementById('display-card-id');
+    let cardData = null;
+    let tapCount = 0;
+    let tapTimer = null;
+
+    const loadingView = document.getElementById('loading-view');
+    const customerView = document.getElementById('customer-view');
+    const setupView = document.getElementById('setup-view');
+
+    function secretTap() {
+      tapCount++;
+      clearTimeout(tapTimer);
+      if (tapCount >= 3) {
+        tapCount = 0;
+        openSetup(cardData);
+      } else {
+        tapTimer = setTimeout(() => { tapCount = 0; }, 900);
+      }
+    }
 
     async function init() {
       if (!cardId) {
-        statusTitle.innerText = "कार्ड ID नहीं मिला";
-        statusDesc.innerText = "कृपया सही QR कोड या NFC कार्ड स्कैन करें।";
-        loadingBox.querySelector('.animate-spin').style.display = 'none';
+        document.getElementById('loading-text').innerText = "Invalid Card URL";
         return;
       }
-
-      displayCardId.innerText = cardId;
+      document.getElementById('admin-card-id').innerText = cardId;
 
       try {
-        const response = await fetch(`${FIREBASE_BASE_URL}/${cardId}.json`);
-        const data = await response.json();
-
-        // अगर लिंक पहले से मौजूद है और एडमिन मोड नहीं है -> सीधे Google Review पर भेजें
-        if (data && !forceAdmin) {
-          const redirectUrl = (typeof data === 'string') ? data : data.url;
-          if (redirectUrl) {
-            window.location.replace(redirectUrl);
-            return;
-          }
+        const res = await fetch(`${DB_URL}/${cardId}.json`);
+        const raw = await res.json();
+        if (!raw) {
+          openSetup(null);
+          return;
         }
-
-        // कार्ड खाली है या एडमिन मोड माँगा गया है -> सेटअप फ़ॉर्म दिखाएं
-        showSetup(data);
-
-      } catch (err) {
-        showSetup(null);
+        cardData = typeof raw === 'string'
+          ? { name: "Welcome", tagline: "", google: raw, whatsapp: "", instagram: "", youtube: "", facebook: "" }
+          : {
+              name: raw.name || "Welcome",
+              tagline: raw.tagline || "",
+              google: raw.google || raw.url || "",
+              whatsapp: raw.whatsapp || "",
+              instagram: raw.instagram || "",
+              youtube: raw.youtube || "",
+              facebook: raw.facebook || ""
+            };
+        renderHub(cardData);
+      } catch (e) {
+        openSetup(null);
       }
     }
 
-    function showSetup(existingData) {
-      loadingBox.classList.add('hidden');
-      setupBox.classList.remove('hidden');
+    function renderHub(d) {
+      loadingView.classList.add('hidden');
+      setupView.classList.add('hidden');
+      customerView.classList.remove('hidden');
 
-      if (existingData) {
-        if (typeof existingData === 'object') {
-          if (existingData.name) document.getElementById('input-name').value = existingData.name;
-          if (existingData.url) document.getElementById('input-url').value = existingData.url;
-        } else if (typeof existingData === 'string') {
-          document.getElementById('input-url').value = existingData;
-        }
+      document.getElementById('hub-name').innerText = d.name;
+      const tg = document.getElementById('hub-tagline');
+      if (d.tagline) {
+        tg.innerText = d.tagline;
+        tg.classList.remove('hidden');
+      } else {
+        tg.classList.add('hidden');
       }
+
+      setVisible('btn-google-wrap', !!d.google);
+      setVisible('btn-whatsapp', !!d.whatsapp);
+      setVisible('btn-instagram', !!d.instagram);
+      setVisible('btn-youtube', !!d.youtube);
+      setVisible('btn-facebook', !!d.facebook);
     }
 
-    function toggleAdminMode() {
-      loadingBox.classList.add('hidden');
-      setupBox.classList.remove('hidden');
+    function setVisible(id, show) {
+      document.getElementById(id).classList.toggle('hidden', !show);
     }
 
-    async function saveCardData() {
-      const pin = document.getElementById('input-pin').value.trim();
-      const shopName = document.getElementById('input-name').value.trim();
-      const reviewUrl = document.getElementById('input-url').value.trim();
-      const errorMsg = document.getElementById('error-msg');
-      const successMsg = document.getElementById('success-msg');
-      const btnSave = document.getElementById('btn-save');
+    function openApp(type) {
+      if (!cardData) return;
+      const ua = navigator.userAgent || "";
+      const isAndroid = /android/i.test(ua);
+      const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
 
-      errorMsg.classList.add('hidden');
-      successMsg.classList.add('hidden');
-
-      // मास्टर PIN की जाँच
-      if (pin !== MASTER_PIN) {
-        errorMsg.innerText = "अमान्य मास्टर PIN! केवल एडमिन ही कार्ड सेट कर सकता है।";
-        errorMsg.classList.remove('hidden');
+      if (type === 'google' && cardData.google) {
+        window.location.href = cardData.google;
         return;
       }
 
-      if (!reviewUrl || !reviewUrl.startsWith("http")) {
-        errorMsg.innerText = "कृपया सही Google Review लिंक (http/https सहित) दर्ज करें।";
-        errorMsg.classList.remove('hidden');
+      if (type === 'whatsapp' && cardData.whatsapp) {
+        let num = cardData.whatsapp.replace(/\D/g, '');
+        if (num.length === 10) num = '91' + num;
+        window.location.href = `whatsapp://send?phone=${num}`;
         return;
       }
 
-      btnSave.disabled = true;
-      btnSave.innerText = "सेव हो रहा है...";
+      if (type === 'instagram' && cardData.instagram) {
+        let raw = cardData.instagram.trim();
+        let user = "";
+        let web = raw;
+        if (!raw.startsWith('http')) {
+          user = raw.replace(/^@/, '').replace(/\//g, '');
+          web = `https://www.instagram.com/${user}`;
+        } else {
+          try {
+            const parts = new URL(raw).pathname.split('/').filter(Boolean);
+            if (parts.length && !['p', 'reel', 'reels', 'tv', 'explore'].includes(parts[0])) user = parts[0];
+          } catch (e) {}
+        }
+        if (isAndroid) {
+          const target = user ? `instagram.com/_u/${user}/` : web.replace(/^https?:\/\//, '');
+          window.location.href = `intent://${target}#Intent;package=com.instagram.android;scheme=https;S.browser_fallback_url=${encodeURIComponent(web)};end`;
+          return;
+        }
+        if (isIOS && user) {
+          iosOpen(`instagram://user?username=${user}`, web);
+          return;
+        }
+        window.location.href = web;
+        return;
+      }
 
-      const payload = {
-        name: shopName || "Shop",
-        url: reviewUrl,
-        updatedAt: new Date().toISOString()
-      };
+      if (type === 'youtube' && cardData.youtube) {
+        let raw = cardData.youtube.trim();
+        let web = raw.startsWith('http') ? raw : `https://www.youtube.com/${raw.startsWith('@') ? raw : '@' + raw}`;
+        const clean = web.replace(/^https?:\/\//, '');
+        if (isAndroid) {
+          window.location.href = `intent://${clean}#Intent;package=com.google.android.youtube;scheme=https;S.browser_fallback_url=${encodeURIComponent(web)};end`;
+          return;
+        }
+        if (isIOS) {
+          iosOpen(`vnd.youtube://${clean}`, web);
+          return;
+        }
+        window.location.href = web;
+        return;
+      }
+
+      if (type === 'facebook' && cardData.facebook) {
+        let raw = cardData.facebook.trim();
+        let web = raw.startsWith('http') ? raw : `https://www.facebook.com/${raw}`;
+        if (isAndroid) {
+          window.location.href = `intent://facewebmodal/f?href=${encodeURIComponent(web)}#Intent;package=com.facebook.katana;scheme=fb;S.browser_fallback_url=${encodeURIComponent(web)};end`;
+          return;
+        }
+        if (isIOS) {
+          iosOpen(`fb://facewebmodal/f?href=${encodeURIComponent(web)}`, web);
+          return;
+        }
+        window.location.href = web;
+      }
+    }
+
+    function iosOpen(scheme, web) {
+      const t = Date.now();
+      window.location.href = scheme;
+      setTimeout(() => { if (Date.now() - t < 2000) window.location.href = web; }, 1200);
+    }
+
+    function openSetup(d) {
+      loadingView.classList.add('hidden');
+      customerView.classList.add('hidden');
+      setupView.classList.remove('hidden');
+      document.getElementById('alert-box').classList.add('hidden');
+
+      document.getElementById('form-name').value = d ? d.name : "";
+      document.getElementById('form-tagline').value = d ? d.tagline : "";
+      document.getElementById('form-google').value = d ? d.google : "";
+      document.getElementById('form-whatsapp').value = d ? d.whatsapp : "";
+      document.getElementById('form-instagram').value = d ? d.instagram : "";
+      document.getElementById('form-youtube').value = d ? d.youtube : "";
+      document.getElementById('form-facebook').value = d ? d.facebook : "";
+
+      setVisible('btn-reset', !!d);
+      setVisible('btn-close-setup', !!d);
+    }
+
+    function closeSetup() {
+      if (cardData) renderHub(cardData);
+    }
+
+    function togglePin() {
+      const p = document.getElementById('form-pin');
+      const i = document.getElementById('eye-icon');
+      p.type = p.type === 'password' ? 'text' : 'password';
+      i.className = p.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+    }
+
+    function msg(text, isErr) {
+      const b = document.getElementById('alert-box');
+      b.innerText = text;
+      b.className = `p-3 rounded-xl text-xs font-semibold text-center ${isErr ? 'bg-red-500/20 text-red-300 border border-red-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'}`;
+      b.classList.remove('hidden');
+    }
+
+    async function saveData() {
+      const pin = document.getElementById('form-pin').value.trim();
+      const name = document.getElementById('form-name').value.trim();
+      const tagline = document.getElementById('form-tagline').value.trim();
+      const google = document.getElementById('form-google').value.trim();
+      const whatsapp = document.getElementById('form-whatsapp').value.trim();
+      const instagram = document.getElementById('form-instagram').value.trim();
+      const youtube = document.getElementById('form-youtube').value.trim();
+      const facebook = document.getElementById('form-facebook').value.trim();
+
+      if (pin !== MASTER_PIN) return msg("Invalid Master Password", true);
+      if (!name) return msg("Enter Business Name", true);
+      if (!google && !whatsapp && !instagram && !youtube && !facebook) return msg("Add at least one link", true);
+
+      const btn = document.getElementById('btn-save');
+      btn.disabled = true;
+      btn.innerText = "Saving...";
+
+      const payload = { name, tagline, google, whatsapp, instagram, youtube, facebook };
 
       try {
-        const res = await fetch(`${FIREBASE_BASE_URL}/${cardId}.json`, {
+        const res = await fetch(`${DB_URL}/${cardId}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-
         if (res.ok) {
-          successMsg.innerText = "कार्ड सफलतापूर्वक एक्टिवेट हो गया!";
-          successMsg.classList.remove('hidden');
-          btnSave.innerText = "कार्ड चालू है ✅";
+          cardData = payload;
+          btn.disabled = false;
+          btn.innerText = "Save & Activate";
+          renderHub(cardData);
+        } else throw new Error();
+      } catch (e) {
+        btn.disabled = false;
+        btn.innerText = "Save & Activate";
+        msg("Connection Error", true);
+      }
+    }
 
-          setTimeout(() => {
-            window.location.replace(reviewUrl);
-          }, 1500);
-        } else {
-          throw new Error();
+    async function resetData() {
+      const pin = document.getElementById('form-pin').value.trim();
+      if (pin !== MASTER_PIN) return msg("Enter Master Password first", true);
+      if (!confirm("Reset this card completely?")) return;
+
+      try {
+        const res = await fetch(`${DB_URL}/${cardId}.json`, { method: 'DELETE' });
+        if (res.ok) {
+          cardData = null;
+          openSetup(null);
+          msg("Card Reset Complete", false);
         }
       } catch (e) {
-        errorMsg.innerText = "डेटाबेस में सेव नहीं हो पाया। इंटरनेट कनेक्शन चेक करें।";
-        errorMsg.classList.remove('hidden');
-        btnSave.disabled = false;
-        btnSave.innerText = "पुनः प्रयास करें";
+        msg("Reset Failed", true);
       }
     }
 
