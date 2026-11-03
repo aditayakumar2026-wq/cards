@@ -23,6 +23,7 @@
     }
     .tap-btn {
       transition: transform 0.15s ease;
+      touch-action: manipulation;
     }
     .tap-btn:active {
       transform: scale(0.97);
@@ -40,11 +41,11 @@
 
     <div id="customer-view" class="hidden space-y-5">
       <div class="text-center space-y-2 pt-1">
-        <div onclick="secretTap()" class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 border-2 border-white/15 cursor-default">
+        <div onclick="secretTap()" class="tap-btn w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 border-2 border-white/15 cursor-pointer">
           <i class="fa-solid fa-user text-3xl text-white"></i>
         </div>
-        <h1 id="hub-name" class="text-2xl font-extrabold text-white tracking-tight pt-1"></h1>
-        <p id="hub-tagline" class="hidden text-xs font-medium text-slate-400 bg-slate-800/80 inline-block px-3.5 py-1 rounded-full border border-slate-700"></p>
+        <h1 id="hub-name" class="text-2xl font-extrabold text-white tracking-tight pt-1 break-words"></h1>
+        <p id="hub-tagline" class="hidden text-xs font-medium text-slate-400 bg-slate-800/80 inline-block px-3.5 py-1 rounded-full border border-slate-700 break-words max-w-full"></p>
       </div>
 
       <div id="btn-google-wrap" class="hidden pt-1">
@@ -126,7 +127,7 @@
             <p id="admin-card-id" class="text-xs text-indigo-400 font-mono"></p>
           </div>
         </div>
-        <button id="btn-close-setup" onclick="closeSetup()" class="hidden text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded-lg bg-slate-800">Close</button>
+        <button id="btn-close-setup" onclick="closeSetup()" class="hidden text-xs text-slate-300 hover:text-white px-3 py-1.5 rounded-lg bg-slate-800">Close</button>
       </div>
 
       <div id="alert-box" class="hidden p-3 rounded-xl text-xs font-semibold text-center"></div>
@@ -134,7 +135,7 @@
       <div class="bg-slate-900 p-3 rounded-2xl border border-indigo-500/30">
         <label class="block text-[11px] font-bold text-indigo-300 uppercase mb-1">Master Password</label>
         <div class="relative">
-          <input type="password" id="form-pin" placeholder="Enter Password" class="w-full pl-3 pr-9 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500 font-mono">
+          <input type="password" id="form-pin" placeholder="Enter Password" autocomplete="off" class="w-full pl-3 pr-9 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500 font-mono">
           <button type="button" onclick="togglePin()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
             <i id="eye-icon" class="fa-solid fa-eye"></i>
           </button>
@@ -144,7 +145,7 @@
       <div class="space-y-2.5 max-h-[52vh] overflow-y-auto pr-1">
         <input type="text" id="form-name" placeholder="Business / Shop Name *" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500">
         <input type="text" id="form-tagline" placeholder="Category or City (Optional)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500">
-        <input type="url" id="form-google" placeholder="Google Review Link" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-amber-500/40 text-white text-sm focus:outline-none focus:border-amber-400">
+        <input type="text" id="form-google" placeholder="Google Review Link" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-amber-500/40 text-white text-sm focus:outline-none focus:border-amber-400">
         <input type="tel" id="form-whatsapp" placeholder="WhatsApp Number (10 digits)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
         <input type="text" id="form-instagram" placeholder="Instagram Link or @username" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-pink-500">
         <input type="text" id="form-youtube" placeholder="YouTube Channel Link" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-red-500">
@@ -153,7 +154,7 @@
 
       <div class="pt-2 space-y-2">
         <button id="btn-save" onclick="saveData()" class="w-full tap-btn py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white text-sm">Save & Activate</button>
-        <button id="btn-reset" onclick="resetData()" class="hidden w-full py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold">Reset Card</button>
+        <button id="btn-reset" onclick="resetData()" class="hidden w-full tap-btn py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold">Reset Card</button>
       </div>
     </div>
 
@@ -165,6 +166,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const cardId = params.get('id');
+    const forceAdmin = params.get('admin') === '1';
 
     let cardData = null;
     let tapCount = 0;
@@ -181,19 +183,26 @@
         tapCount = 0;
         openSetup(cardData);
       } else {
-        tapTimer = setTimeout(() => { tapCount = 0; }, 900);
+        tapTimer = setTimeout(() => { tapCount = 0; }, 800);
       }
+    }
+
+    function ensureHttp(url) {
+      const u = url.trim();
+      if (!u) return "";
+      return /^https?:\/\//i.test(u) ? u : 'https://' + u;
     }
 
     async function init() {
       if (!cardId) {
-        document.getElementById('loading-text').innerText = "Invalid Card URL";
+        document.getElementById('loading-text').innerText = "Invalid Card Link";
+        loadingView.querySelector('.animate-spin').style.display = 'none';
         return;
       }
       document.getElementById('admin-card-id').innerText = cardId;
 
       try {
-        const res = await fetch(`${DB_URL}/${cardId}.json`);
+        const res = await fetch(`${DB_URL}/${cardId}.json`, { cache: "no-store" });
         const raw = await res.json();
         if (!raw) {
           openSetup(null);
@@ -210,6 +219,11 @@
               youtube: raw.youtube || "",
               facebook: raw.facebook || ""
             };
+
+        if (forceAdmin) {
+          openSetup(cardData);
+          return;
+        }
         renderHub(cardData);
       } catch (e) {
         openSetup(null);
@@ -248,13 +262,14 @@
       const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
 
       if (type === 'google' && cardData.google) {
-        window.location.href = cardData.google;
+        window.location.href = ensureHttp(cardData.google);
         return;
       }
 
       if (type === 'whatsapp' && cardData.whatsapp) {
-        let num = cardData.whatsapp.replace(/\D/g, '');
+        let num = cardData.whatsapp.trim().replace(/\D/g, '').replace(/^0+/, '');
         if (num.length === 10) num = '91' + num;
+        else if (num.length > 10 && num.startsWith('91')) num = '91' + num.slice(-10);
         window.location.href = `whatsapp://send?phone=${num}`;
         return;
       }
@@ -262,18 +277,23 @@
       if (type === 'instagram' && cardData.instagram) {
         let raw = cardData.instagram.trim();
         let user = "";
-        let web = raw;
-        if (!raw.startsWith('http')) {
-          user = raw.replace(/^@/, '').replace(/\//g, '');
-          web = `https://www.instagram.com/${user}`;
-        } else {
+        let web = "";
+
+        if (/instagram\.com/i.test(raw)) {
+          web = ensureHttp(raw);
           try {
-            const parts = new URL(raw).pathname.split('/').filter(Boolean);
-            if (parts.length && !['p', 'reel', 'reels', 'tv', 'explore'].includes(parts[0])) user = parts[0];
+            const parts = new URL(web).pathname.split('/').filter(Boolean);
+            if (parts.length && !['p', 'reel', 'reels', 'tv', 'explore', 'stories'].includes(parts[0].toLowerCase())) {
+              user = parts[0];
+            }
           } catch (e) {}
+        } else {
+          user = raw.replace(/^@/, '').replace(/\//g, '').trim();
+          web = `https://www.instagram.com/${user}`;
         }
+
         if (isAndroid) {
-          const target = user ? `instagram.com/_u/${user}/` : web.replace(/^https?:\/\//, '');
+          const target = user ? `instagram.com/_u/${user}/` : web.replace(/^https?:\/\//i, '');
           window.location.href = `intent://${target}#Intent;package=com.instagram.android;scheme=https;S.browser_fallback_url=${encodeURIComponent(web)};end`;
           return;
         }
@@ -287,8 +307,14 @@
 
       if (type === 'youtube' && cardData.youtube) {
         let raw = cardData.youtube.trim();
-        let web = raw.startsWith('http') ? raw : `https://www.youtube.com/${raw.startsWith('@') ? raw : '@' + raw}`;
-        const clean = web.replace(/^https?:\/\//, '');
+        let web = "";
+        if (/youtube\.com|youtu\.be/i.test(raw)) {
+          web = ensureHttp(raw);
+        } else {
+          const handle = raw.replace(/^\/+/, '');
+          web = `https://www.youtube.com/${handle.startsWith('@') ? handle : '@' + handle}`;
+        }
+        const clean = web.replace(/^https?:\/\//i, '');
         if (isAndroid) {
           window.location.href = `intent://${clean}#Intent;package=com.google.android.youtube;scheme=https;S.browser_fallback_url=${encodeURIComponent(web)};end`;
           return;
@@ -303,7 +329,12 @@
 
       if (type === 'facebook' && cardData.facebook) {
         let raw = cardData.facebook.trim();
-        let web = raw.startsWith('http') ? raw : `https://www.facebook.com/${raw}`;
+        let web = "";
+        if (/facebook\.com|fb\.com|fb\.watch/i.test(raw)) {
+          web = ensureHttp(raw);
+        } else {
+          web = `https://www.facebook.com/${raw.replace(/^[@\/]+/, '')}`;
+        }
         if (isAndroid) {
           window.location.href = `intent://facewebmodal/f?href=${encodeURIComponent(web)}#Intent;package=com.facebook.katana;scheme=fb;S.browser_fallback_url=${encodeURIComponent(web)};end`;
           return;
@@ -328,6 +359,11 @@
       setupView.classList.remove('hidden');
       document.getElementById('alert-box').classList.add('hidden');
 
+      const pinInput = document.getElementById('form-pin');
+      pinInput.value = "";
+      pinInput.type = "password";
+      document.getElementById('eye-icon').className = "fa-solid fa-eye";
+
       document.getElementById('form-name').value = d ? d.name : "";
       document.getElementById('form-tagline').value = d ? d.tagline : "";
       document.getElementById('form-google').value = d ? d.google : "";
@@ -341,6 +377,7 @@
     }
 
     function closeSetup() {
+      document.getElementById('form-pin').value = "";
       if (cardData) renderHub(cardData);
     }
 
@@ -376,7 +413,15 @@
       btn.disabled = true;
       btn.innerText = "Saving...";
 
-      const payload = { name, tagline, google, whatsapp, instagram, youtube, facebook };
+      const payload = { 
+        name: name, 
+        tagline: tagline, 
+        google: google, 
+        whatsapp: whatsapp, 
+        instagram: instagram, 
+        youtube: youtube, 
+        facebook: facebook 
+      };
 
       try {
         const res = await fetch(`${DB_URL}/${cardId}.json`, {
@@ -386,6 +431,7 @@
         });
         if (res.ok) {
           cardData = payload;
+          document.getElementById('form-pin').value = "";
           btn.disabled = false;
           btn.innerText = "Save & Activate";
           renderHub(cardData);
