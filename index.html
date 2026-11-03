@@ -3,106 +3,192 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Review & Social Hub</title>
+  <title>Smart Review Card</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4 font-sans">
 
   <div class="w-full max-w-md bg-slate-800 border border-slate-700 rounded-3xl p-6 shadow-2xl text-center">
     
-    <!-- Shop Logo -->
-    <div class="w-20 h-20 mx-auto rounded-full bg-slate-700 flex items-center justify-center border-2 border-amber-400 mb-4 shadow-lg overflow-hidden">
-      <img id="shop-logo" src="https://via.placeholder.com/150" alt="Logo" class="w-full h-full object-cover">
+    <!-- Loading / Redirecting State -->
+    <div id="loading-box" class="py-10 space-y-4">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
+      <h2 id="status-title" class="text-xl font-bold text-white">Google Review पर ले जा रहे हैं...</h2>
+      <p id="status-desc" class="text-sm text-slate-400">कृपया एक सेकंड प्रतीक्षा करें</p>
     </div>
 
-    <!-- Shop Name & Tagline -->
-    <h1 id="shop-name" class="text-2xl font-bold tracking-tight text-white mb-1">Smart Shop</h1>
-    <p id="shop-tagline" class="text-sm text-slate-400 mb-6">Connect with us</p>
-
-    <!-- Buttons -->
-    <div class="space-y-4">
-      
-      <!-- Google Review -->
-      <a id="btn-review" href="#" target="_blank" class="w-full flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg font-semibold text-lg transition duration-200">
-        <div class="flex items-center space-x-3">
-          <i class="fa-brands fa-google text-2xl text-white"></i>
-          <span>Google par 5★ Review dein</span>
+    <!-- Admin / Field Setup Form -->
+    <div id="setup-box" class="hidden text-left space-y-4">
+      <div class="text-center pb-2 border-b border-slate-700">
+        <div class="w-12 h-12 bg-indigo-600/20 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl font-bold">
+          <i class="fa-solid fa-bolt"></i>
         </div>
-        <i class="fa-solid fa-chevron-right text-sm opacity-70"></i>
-      </a>
+        <h2 class="text-xl font-bold text-white">स्मार्ट कार्ड सेटअप</h2>
+        <p class="text-xs text-indigo-400 mt-1 font-mono">कार्ड ID: <span id="display-card-id" class="font-bold"></span></p>
+      </div>
 
-      <!-- Instagram -->
-      <a id="btn-insta" href="#" target="_blank" class="w-full flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 shadow-lg font-semibold text-lg transition duration-200">
-        <div class="flex items-center space-x-3">
-          <i class="fa-brands fa-instagram text-2xl text-white"></i>
-          <span>Instagram par follow karein</span>
-        </div>
-        <i class="fa-solid fa-chevron-right text-sm opacity-70"></i>
-      </a>
+      <div id="error-msg" class="hidden p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-300 text-xs text-center font-medium"></div>
+      <div id="success-msg" class="hidden p-3 bg-emerald-500/20 border border-emerald-500/50 rounded-xl text-emerald-300 text-xs text-center font-medium"></div>
 
-      <!-- YouTube -->
-      <a id="btn-yt" href="#" target="_blank" class="w-full flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 shadow-lg font-semibold text-lg transition duration-200">
-        <div class="flex items-center space-x-3">
-          <i class="fa-brands fa-youtube text-2xl text-white"></i>
-          <span>YouTube channel dekhein</span>
-        </div>
-        <i class="fa-solid fa-chevron-right text-sm opacity-70"></i>
-      </a>
+      <div>
+        <label class="block text-xs font-semibold text-slate-400 mb-1">मास्टर PIN (केवल आपके लिए)</label>
+        <input type="password" id="input-pin" maxlength="6" placeholder="अपना PIN दर्ज करें" 
+               class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+      </div>
 
-      <!-- WhatsApp -->
-      <a id="btn-wa" href="#" target="_blank" class="w-full flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 shadow-lg font-semibold text-lg transition duration-200">
-        <div class="flex items-center space-x-3">
-          <i class="fa-brands fa-whatsapp text-2xl text-white"></i>
-          <span>WhatsApp par baat karein</span>
-        </div>
-        <i class="fa-solid fa-chevron-right text-sm opacity-70"></i>
-      </a>
+      <div>
+        <label class="block text-xs font-semibold text-slate-400 mb-1">दुकान / प्रतिष्ठान का नाम</label>
+        <input type="text" id="input-name" placeholder="उदा. माँ भवानी ड्रेसेस" 
+               class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+      </div>
 
+      <div>
+        <label class="block text-xs font-semibold text-slate-400 mb-1">Google Review लिंक</label>
+        <input type="url" id="input-url" placeholder="https://g.page/r/..." 
+               class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500 text-sm">
+      </div>
+
+      <button id="btn-save" onclick="saveCardData()" class="w-full py-3.5 mt-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 font-bold text-white shadow-lg shadow-indigo-600/30 transition duration-200">
+        कार्ड एक्टिवेट / सेव करें
+      </button>
     </div>
 
-    <p class="text-xs text-slate-500 mt-8">Powered by Smart Tap NFC</p>
+    <!-- Footer -->
+    <div class="mt-6 pt-4 border-t border-slate-700/50 flex justify-between items-center text-xs text-slate-500">
+      <span>Smart NFC System</span>
+      <button onclick="toggleAdminMode()" class="text-slate-500 hover:text-indigo-400 transition">⚙️ एडमिन</button>
+    </div>
+
   </div>
 
   <script>
-    // Dukaandar ki list (Yahan aap nayi dukaan add kar sakte hain)
-    const allShops = {
-      "shop1": {
-        name: "Raj Deluxe Salon",
-        tagline: "Hair & Skin Specialists",
-        logo: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=150",
-        reviewUrl: "https://g.page/r/your-google-review-link",
-        instaUrl: "https://instagram.com",
-        ytUrl: "https://youtube.com",
-        waUrl: "https://wa.me/919876543210"
-      },
-      "shop2": {
-        name: "Gupta Dental Clinic",
-        tagline: "Smile with Confidence",
-        logo: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=150",
-        reviewUrl: "https://g.page/r/dental-review-link",
-        instaUrl: "https://instagram.com",
-        ytUrl: "https://youtube.com",
-        waUrl: "https://wa.me/919876543210"
+    // 1. आपका मास्टर PIN (इसे आप यहाँ बदल सकते हैं)
+    const MASTER_PIN = "1234"; 
+
+    // 2. आपका Firebase Realtime Database URL
+    const FIREBASE_BASE_URL = "https://gen-lang-client-0204238981-default-rtdb.firebaseio.com";
+
+    const params = new URLSearchParams(window.location.search);
+    const cardId = params.get('id');
+    const forceAdmin = params.get('admin') === '1';
+
+    const loadingBox = document.getElementById('loading-box');
+    const setupBox = document.getElementById('setup-box');
+    const statusTitle = document.getElementById('status-title');
+    const statusDesc = document.getElementById('status-desc');
+    const displayCardId = document.getElementById('display-card-id');
+
+    async function init() {
+      if (!cardId) {
+        statusTitle.innerText = "कार्ड ID नहीं मिला";
+        statusDesc.innerText = "कृपया सही QR कोड या NFC कार्ड स्कैन करें।";
+        loadingBox.querySelector('.animate-spin').style.display = 'none';
+        return;
       }
-    };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const shopId = urlParams.get('id');
+      displayCardId.innerText = cardId;
 
-    if (shopId && allShops[shopId]) {
-      const data = allShops[shopId];
-      document.getElementById('shop-name').innerText = data.name;
-      document.getElementById('shop-tagline').innerText = data.tagline;
-      document.getElementById('shop-logo').src = data.logo;
-      document.getElementById('btn-review').href = data.reviewUrl;
-      document.getElementById('btn-insta').href = data.instaUrl;
-      document.getElementById('btn-yt').href = data.ytUrl;
-      document.getElementById('btn-wa').href = data.waUrl;
-    } else {
-      document.getElementById('shop-name').innerText = "Smart Tap Hub";
-      document.getElementById('shop-tagline').innerText = "Kripya sahi QR scan karein";
+      try {
+        const response = await fetch(`${FIREBASE_BASE_URL}/${cardId}.json`);
+        const data = await response.json();
+
+        // अगर लिंक पहले से मौजूद है और एडमिन मोड नहीं है -> सीधे Google Review पर भेजें
+        if (data && !forceAdmin) {
+          const redirectUrl = (typeof data === 'string') ? data : data.url;
+          if (redirectUrl) {
+            window.location.replace(redirectUrl);
+            return;
+          }
+        }
+
+        // कार्ड खाली है या एडमिन मोड माँगा गया है -> सेटअप फ़ॉर्म दिखाएं
+        showSetup(data);
+
+      } catch (err) {
+        showSetup(null);
+      }
     }
+
+    function showSetup(existingData) {
+      loadingBox.classList.add('hidden');
+      setupBox.classList.remove('hidden');
+
+      if (existingData) {
+        if (typeof existingData === 'object') {
+          if (existingData.name) document.getElementById('input-name').value = existingData.name;
+          if (existingData.url) document.getElementById('input-url').value = existingData.url;
+        } else if (typeof existingData === 'string') {
+          document.getElementById('input-url').value = existingData;
+        }
+      }
+    }
+
+    function toggleAdminMode() {
+      loadingBox.classList.add('hidden');
+      setupBox.classList.remove('hidden');
+    }
+
+    async function saveCardData() {
+      const pin = document.getElementById('input-pin').value.trim();
+      const shopName = document.getElementById('input-name').value.trim();
+      const reviewUrl = document.getElementById('input-url').value.trim();
+      const errorMsg = document.getElementById('error-msg');
+      const successMsg = document.getElementById('success-msg');
+      const btnSave = document.getElementById('btn-save');
+
+      errorMsg.classList.add('hidden');
+      successMsg.classList.add('hidden');
+
+      // मास्टर PIN की जाँच
+      if (pin !== MASTER_PIN) {
+        errorMsg.innerText = "अमान्य मास्टर PIN! केवल एडमिन ही कार्ड सेट कर सकता है।";
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+
+      if (!reviewUrl || !reviewUrl.startsWith("http")) {
+        errorMsg.innerText = "कृपया सही Google Review लिंक (http/https सहित) दर्ज करें।";
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+
+      btnSave.disabled = true;
+      btnSave.innerText = "सेव हो रहा है...";
+
+      const payload = {
+        name: shopName || "Shop",
+        url: reviewUrl,
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        const res = await fetch(`${FIREBASE_BASE_URL}/${cardId}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          successMsg.innerText = "कार्ड सफलतापूर्वक एक्टिवेट हो गया!";
+          successMsg.classList.remove('hidden');
+          btnSave.innerText = "कार्ड चालू है ✅";
+
+          setTimeout(() => {
+            window.location.replace(reviewUrl);
+          }, 1500);
+        } else {
+          throw new Error();
+        }
+      } catch (e) {
+        errorMsg.innerText = "डेटाबेस में सेव नहीं हो पाया। इंटरनेट कनेक्शन चेक करें।";
+        errorMsg.classList.remove('hidden');
+        btnSave.disabled = false;
+        btnSave.innerText = "पुनः प्रयास करें";
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>
